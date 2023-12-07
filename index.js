@@ -2,13 +2,14 @@ const express = require("express");
 const app = express();
 const axios = require("axios");
 const bodyParser = require("body-parser");
+require("dotenv").config({ path: ".env" });
 
 app.use(bodyParser.json());
 
 // Cloudflare account details
-const email = "aman.choudhary9785@gmail.com";
-const apiKey = "5d3b864a6054d58d495ed17360c06a9d2b338";
-
+const email = process.env.EMAIL;
+const apiKey = process.env.APIKEY;
+console.log(email, apiKey);
 // Cloudflare API endpoint URLs
 const baseURL = "https://api.cloudflare.com/client/v4";
 const zonesURL = "https://api.cloudflare.com/client/v4/zones";
