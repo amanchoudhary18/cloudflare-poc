@@ -97,29 +97,6 @@ app.delete("/delete-zone/:zoneId", async (req, res) => {
   }
 });
 
-// List DNS Records
-app.get("/list-records/:zoneId", async (req, res) => {
-  const { zoneId } = req.params;
-
-  try {
-    const recordsResponse = await axios.get(
-      `${zonesURL}/${zoneId}/dns_records`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "X-Auth-Email": email,
-          "X-Auth-Key": apiKey,
-        },
-      }
-    );
-
-    res.json({ success: true, records: recordsResponse.data.result });
-  } catch (error) {
-    console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
 // Check Zone Status (Pending or Active)
 app.get("/check-zone-status/:zoneId", async (req, res) => {
   const { zoneId } = req.params;
