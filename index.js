@@ -32,7 +32,9 @@ app.get("/list-zones", async (req, res) => {
     });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -70,10 +72,9 @@ app.post("/add-zone", async (req, res) => {
 
     res.json({ success: true, zone: response.data.result });
   } catch (error) {
-    if (error.response.data && error.response.data.errors[0].code === 1061) {
-      console.log(error.response.data);
-      res.status(500).json({ success: false, error: "Domain already exists" });
-    } else res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -93,7 +94,9 @@ app.delete("/delete-zone/:zoneId", async (req, res) => {
     res.json({ success: true, message: "Zone deleted successfully" });
   } catch (error) {
     if (error.response) console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -115,7 +118,9 @@ app.get("/check-zone-status/:zoneId", async (req, res) => {
     res.json({ success: true, zoneId, status: zoneStatus });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -135,7 +140,9 @@ app.get("/list-dns-records/:zoneId", async (req, res) => {
     res.json({ success: true, zoneId, dnsRecords: response.data.result });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -177,10 +184,9 @@ app.post("/add-dns-record/:zoneId", async (req, res) => {
 
     res.json({ success: true, record: response.data.result });
   } catch (error) {
-    if (error.response.data && error.response.data.errors[0].code === 81057) {
-      console.log(error.response.data);
-      res.status(500).json({ success: false, error: "Record already exists" });
-    } else res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -202,10 +208,9 @@ app.delete("/delete-dns-record/:zoneId/:recordId", async (req, res) => {
 
     res.json({ success: true, message: "Record deleted successfully" });
   } catch (error) {
-    if (error.response.data && error.response.data.errors[0].code === 81044) {
-      console.log(error.response.data);
-      res.status(500).json({ success: false, error: "Record does not exist" });
-    } else res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -247,10 +252,1096 @@ app.put("/edit-dns-record/:zoneId/:recordId", async (req, res) => {
 
     res.json({ success: true, record: response.data.result });
   } catch (error) {
-    if (error.response.data && error.response.data.errors[0].code === 81044) {
-      console.log(error.response.data);
-      res.status(500).json({ success: false, error: "Record does not exist" });
-    } else res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Get SSL settings
+app.get("/get-ssl-settings/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(`${zonesURL}/${zoneId}/settings/ssl`, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-Auth-Email": email,
+        "X-Auth-Key": apiKey,
+      },
+    });
+
+    res.json({ success: true, zoneId, sslSettings: response.data.result });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Update SSL Settings
+app.patch("/set-ssl-settings/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Accepted values : off, flexible, full or strict
+
+  const data = {
+    value,
+  };
+
+  try {
+    const response = await axios.patch(
+      `${zonesURL}/${zoneId}/settings/ssl`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({ success: true, message: "SSL settings updated successfully" });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Verify SSL Status
+app.get("/verify-ssl-status/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(`${zonesURL}/${zoneId}/ssl/verification`, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-Auth-Email": email,
+        "X-Auth-Key": apiKey,
+      },
+    });
+
+    res.json({ success: true, zoneId, sslVerification: response.data.result });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// list edge certificates
+app.get("/list-edge-certificates/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    // Use below format for all certificates
+
+    // const response = await axios.get(
+    //   `${zonesURL}/${zoneId}/ssl/certificate_packs?status=all`,
+    //   {
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       "X-Auth-Email": email,
+    //       "X-Auth-Key": apiKey,
+    //     },
+    //   }
+    // );
+
+    // Use below format for only active certificates
+
+    const response = await axios.get(
+      `${zonesURL}/${zoneId}/ssl/certificate_packs`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const edgeCertificates = response.data;
+
+    res.json({ success: true, zoneId, edgeCertificates });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Get Opportunistic Encryption
+app.get("/get-opportunistic-encryption/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `${zonesURL}/${zoneId}/settings/opportunistic_encryption`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const opportunisticEncryption = response.data.result.value;
+
+    res.json({ success: true, zoneId, opportunisticEncryption });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Change Opportunistic Encryption
+app.patch("/change-opportunistic-encryption/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body;
+
+  const data = {
+    value, // Accepted values: "on" or "off"
+  };
+
+  try {
+    const response = await axios.patch(
+      `${zonesURL}/${zoneId}/settings/opportunistic_encryption`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Opportunistic Encryption setting changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Get TLS 1.3 setting
+app.get("/get-tls-1-3/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(`${zonesURL}/${zoneId}/settings/tls_1_3`, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-Auth-Email": email,
+        "X-Auth-Key": apiKey,
+      },
+    });
+
+    const tls13Setting = response.data.result.value;
+
+    res.json({ success: true, zoneId, tls13Setting });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Change TLS 1.3 setting
+app.patch("/change-tls-1-3/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body;
+
+  const data = {
+    value, // Accepted values: "on" or "off"
+  };
+
+  try {
+    const response = await axios.patch(
+      `${zonesURL}/${zoneId}/settings/tls_1_3`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "TLS 1.3 setting changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Brotli
+app.get("/get-brotli-compression/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(`${zonesURL}/${zoneId}/settings/brotli`, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-Auth-Email": email,
+        "X-Auth-Key": apiKey,
+      },
+    });
+
+    const brotliCompression = response.data.result.value;
+
+    res.json({ success: true, zoneId, brotliCompression });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+app.get("/get-brotli-compression/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(`${zonesURL}/${zoneId}/settings/brotli`, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-Auth-Email": email,
+        "X-Auth-Key": apiKey,
+      },
+    });
+
+    const brotliCompression = response.data.result.value;
+
+    res.json({ success: true, zoneId, brotliCompression });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+app.patch("/change-brotli-compression/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Accepted values: "on" or "off"
+
+  const data = {
+    value,
+  };
+
+  try {
+    const response = await axios.patch(
+      `${zonesURL}/${zoneId}/settings/brotli`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Brotli compression setting changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Early Hints
+app.get("/get-early-hints/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `${zonesURL}/${zoneId}/settings/early_hints`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const earlyHintsSetting = response.data.result.value;
+
+    res.json({ success: true, zoneId, earlyHintsSetting });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+app.patch("/change-early-hints/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Accepted values: "on" or "off"
+
+  const data = {
+    value,
+  };
+
+  try {
+    const response = await axios.patch(
+      `${zonesURL}/${zoneId}/settings/early_hints`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Early Hints setting changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Rocket Loader
+app.get("/get-rocket-loader/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `${zonesURL}/${zoneId}/settings/rocket_loader`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const rocketLoaderSetting = response.data.result.value;
+
+    res.json({ success: true, zoneId, rocketLoaderSetting });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+app.patch("/change-rocket-loader/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Accepted values: "on" or "off"
+
+  const data = {
+    value,
+  };
+
+  try {
+    const response = await axios.patch(
+      `${zonesURL}/${zoneId}/settings/rocket_loader`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Rocket Loader setting changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Auto Minify
+app.get("/get-auto-minify/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(`${zonesURL}/${zoneId}/settings/minify`, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-Auth-Email": email,
+        "X-Auth-Key": apiKey,
+      },
+    });
+
+    const autoMinifySetting = response.data.result;
+
+    res.json({ success: true, zoneId, autoMinifySetting });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+app.patch("/change-auto-minify/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { html, css, js } = req.body; // Accepted values: "on" or "off"
+
+  const data = {
+    value: {
+      html,
+      css,
+      js,
+    },
+  };
+
+  //   {
+  //      "html": "on",
+  //      "css": "off",
+  //      "js": "on"
+  //    }
+
+  try {
+    const response = await axios.patch(
+      `${zonesURL}/${zoneId}/settings/minify`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Auto Minify settings changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Get 0-RTT Session Resumption Setting
+app.get("/get-0rtt/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/0rtt`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const zeroRTTSetting = response.data.result.value;
+
+    res.json({ success: true, zoneId, zeroRTTSetting });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Change 0-RTT Session Resumption Setting
+app.patch("/change-0rtt/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Accepted values: "on" or "off"
+
+  const data = {
+    value,
+  };
+
+  try {
+    const response = await axios.patch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/0rtt`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "0-RTT Session Resumption setting changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Get HTTP/3 (with QUIC) Setting
+app.get("/get-http3/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/http3`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const http3Setting = response.data.result.value;
+
+    res.json({ success: true, zoneId, http3Setting });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Change HTTP/3 (with QUIC) Setting
+app.patch("/change-http3/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Accepted values: "on" or "off"
+
+  const data = {
+    value,
+  };
+
+  try {
+    const response = await axios.patch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/http3`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "HTTP/3 (with QUIC) setting changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Get HTTP/2 Setting
+app.get("/get-http2/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/http2`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const http2Setting = response.data.result.value;
+
+    res.json({ success: true, zoneId, http2Setting });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Change HTTP/2 Setting
+app.patch("/change-http2/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Accepted values: "on" or "off"
+
+  const data = {
+    value,
+  };
+
+  try {
+    const response = await axios.patch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/http2`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "HTTP/2 setting changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Get HTTP/2 to Origin Setting
+app.get("/get-http2-to-origin/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/origin_max_http_version`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const http2ToOriginSetting = response.data.result.value;
+
+    res.json({ success: true, zoneId, http2ToOriginSetting });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Change HTTP/2 to Origin Setting
+app.patch("/change-http2-to-origin/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Accepted values: 2 (HTTP/2), 1 (HTTP/1.1)
+
+  const data = {
+    value,
+  };
+
+  try {
+    const response = await axios.patch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/origin_max_http_version`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "HTTP/2 to Origin setting changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Purge All Cached Content
+app.post("/purge-all-cache/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.post(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`,
+      { purge_everything: true },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "All cached content purged successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Purge Cached Content by URL
+app.post("/purge-by-url/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { urls } = req.body; // Array of URLs to purge
+
+  try {
+    const response = await axios.post(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`,
+      { files: urls },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Cached content purged by URL successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get Cache Level Setting
+app.get("/get-cache-level/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/cache_level`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const cacheLevel = response.data.result.value;
+
+    res.json({ success: true, zoneId, cacheLevel });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Change Cache Level Setting
+app.patch("/change-cache-level/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Accepted values: "aggressive"  (Standard), "basic" (No query string), "simplified" (Ignore query string)
+
+  const data = {
+    value,
+  };
+
+  try {
+    const response = await axios.patch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/cache_level`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Cache level setting changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get Browser Cache TTL Setting
+app.get("/get-browser-cache-ttl/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/browser_cache_ttl`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const browserCacheTTL = response.data.result.value;
+
+    res.json({ success: true, zoneId, browserCacheTTL });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Change Browser Cache TTL Setting
+app.patch("/change-browser-cache-ttl/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Browser Cache TTL value in seconds
+
+  // Allowed values:
+  // 0  30  60  120  300  1200  1800  3600  7200  10800  14400  18000  28800  43200  57600  72000  86400  172800
+  // 259200  345600  432000  691200  1382400  2073600  2678400  5356800  16070400  31536000
+
+  const data = {
+    value,
+  };
+
+  try {
+    const response = await axios.patch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/browser_cache_ttl`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Browser Cache TTL setting changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get Development Mode Setting
+app.get("/get-development-mode/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/development_mode`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const developmentMode = response.data.result.value;
+
+    res.json({ success: true, zoneId, developmentMode });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Change Development Mode Setting
+app.patch("/change-development-mode/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Accepted values: 1 (on), 0 (off)
+
+  const data = {
+    value: value ? "on" : "off",
+  };
+
+  try {
+    const response = await axios.patch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/development_mode`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Development Mode setting changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get Always Online Setting
+app.get("/get-always-online/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/always_online`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const alwaysOnline = response.data.result.value;
+
+    res.json({ success: true, zoneId, alwaysOnline });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Change Always Online Setting
+app.patch("/change-always-online/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Accepted values: 1 (on), 0 (off)
+
+  const data = {
+    value: value ? "on" : "off",
+  };
+
+  try {
+    const response = await axios.patch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/always_online`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Always Online setting changed successfully",
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get Argo Tiered Caching settings
+app.get("/get-argo-tiered-caching/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/argo/tiered_caching`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const argoTieredCachingSettings = response.data.result;
+
+    res.json({ success: true, zoneId, argoTieredCachingSettings });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update Argo Tiered Caching
+app.patch("/update-argo-tiered-caching/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Accepted values: "on" or "off"
+
+  const data = {
+    value: value,
+  };
+
+  try {
+    const response = await axios.patch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/argo/tiered_caching`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: `Argo Tiered Caching setting updated successfully`,
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
