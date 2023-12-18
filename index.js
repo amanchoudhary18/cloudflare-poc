@@ -1778,12 +1778,9 @@ app.patch("/change-apo-settings/:zoneId", async (req, res) => {
       enabled,
       hostnames,
       wordpress,
+      wp_plugin,
     },
   };
-
-  if (typeof wp_plugin !== "undefined") {
-    data.value.wp_plugin = wp_plugin;
-  }
 
   try {
     const response = await axios.patch(
