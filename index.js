@@ -1735,6 +1735,79 @@ app.delete("/delete-page-rule/:zoneId/:identifier", async (req, res) => {
   }
 });
 
+// Get APO
+app.get("/get-apo-settings/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/automatic_platform_optimization`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const { success } = response.data;
+    console.log(response.data.result);
+    res.json({
+      success,
+      result: response.data.result,
+    });
+  } catch (error) {
+    console.error("Error:", error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// change apo setting
+app.patch("/change-apo-settings/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { cache_by_device_type, cf, enabled, hostnames, wordpress, wp_plugin } =
+    req.body;
+
+  const data = {
+    value: {
+      cache_by_device_type,
+      cf,
+      enabled,
+      hostnames,
+      wordpress,
+    },
+  };
+
+  if (typeof wp_plugin !== "undefined") {
+    data.value.wp_plugin = wp_plugin;
+  }
+
+  try {
+    const response = await axios.patch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/automatic_platform_optimization`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      result: response.data.result,
+    });
+  } catch (error) {
+    console.error("Error:", error.response.data);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
