@@ -965,7 +965,9 @@ app.get("/get-http2-to-origin/:zoneId", async (req, res) => {
     res.json({ success: true, zoneId, http2ToOriginSetting });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -997,7 +999,9 @@ app.patch("/change-http2-to-origin/:zoneId", async (req, res) => {
     });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -1024,7 +1028,9 @@ app.post("/purge-all-cache/:zoneId", async (req, res) => {
     });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -1052,7 +1058,9 @@ app.post("/purge-by-url/:zoneId", async (req, res) => {
     });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -1077,7 +1085,9 @@ app.get("/get-cache-level/:zoneId", async (req, res) => {
     res.json({ success: true, zoneId, cacheLevel });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -1109,7 +1119,9 @@ app.patch("/change-cache-level/:zoneId", async (req, res) => {
     });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -1134,7 +1146,9 @@ app.get("/get-browser-cache-ttl/:zoneId", async (req, res) => {
     res.json({ success: true, zoneId, browserCacheTTL });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -1170,7 +1184,9 @@ app.patch("/change-browser-cache-ttl/:zoneId", async (req, res) => {
     });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -1195,7 +1211,9 @@ app.get("/get-development-mode/:zoneId", async (req, res) => {
     res.json({ success: true, zoneId, developmentMode });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -1227,7 +1245,9 @@ app.patch("/change-development-mode/:zoneId", async (req, res) => {
     });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -1252,7 +1272,9 @@ app.get("/get-always-online/:zoneId", async (req, res) => {
     res.json({ success: true, zoneId, alwaysOnline });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -1284,7 +1306,9 @@ app.patch("/change-always-online/:zoneId", async (req, res) => {
     });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -1309,7 +1333,9 @@ app.get("/get-argo-tiered-caching/:zoneId", async (req, res) => {
     res.json({ success: true, zoneId, argoTieredCachingSettings });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
@@ -1319,7 +1345,7 @@ app.patch("/update-argo-tiered-caching/:zoneId", async (req, res) => {
   const { value } = req.body; // Accepted values: "on" or "off"
 
   const data = {
-    value: value,
+    value,
   };
 
   try {
@@ -1341,7 +1367,371 @@ app.patch("/update-argo-tiered-caching/:zoneId", async (req, res) => {
     });
   } catch (error) {
     console.log(error.response.data);
-    res.status(500).json({ success: false, error: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// get image resizing setting
+app.get("/get-image-resizing-setting/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/image_resizing`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const imageResizingSetting = response.data.result.value;
+
+    res.json({ success: true, zoneId, imageResizingSetting });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// update image resizing
+app.patch("/change-image-resizing-setting/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body; // Accepted values: "on" or "off"
+
+  const data = {
+    value,
+  };
+
+  try {
+    const response = await axios.patch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/image_resizing`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Image Resizing setting changed successfully",
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Get Polish Settings
+app.get("/get-polish-setting/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/polish`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const polishSetting = response.data.result.value;
+
+    res.json({ success: true, zoneId, polishSetting });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Change Polish settings
+app.patch("/change-polish-setting/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body;
+
+  const data = {
+    value,
+  };
+
+  try {
+    const response = await axios.patch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/polish`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({ success: true, message: "Polish setting changed successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Get webP setting
+app.get("/get-webp-setting/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/webp`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const webpSetting = response.data.result.value;
+
+    res.json({ success: true, zoneId, webpSetting });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Change webP setting
+app.patch("/change-webp-setting/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { value } = req.body;
+  try {
+    // Fetch current Polish setting
+    const polishResponse = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/polish`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const polishSetting = polishResponse.data.result.value;
+
+    // Allow WebP setting update only if Polish setting is not 'off'
+    if (polishSetting !== "off") {
+      const data = {
+        value: value,
+      };
+
+      const response = await axios.patch(
+        `https://api.cloudflare.com/client/v4/zones/${zoneId}/settings/webp`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-Auth-Email": email,
+            "X-Auth-Key": apiKey,
+          },
+        }
+      );
+
+      res.json({ success: true, message: "WebP setting updated successfully" });
+    } else {
+      res.status(400).json({
+        success: false,
+        error: "WebP setting cannot be enabled when Polish is set to 'off'",
+      });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Page Rules
+
+// List Page Rules
+app.get("/list-page-rules/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/pagerules`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const pageRules = response.data.result;
+
+    res.json({ success: true, zoneId, pageRules });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Get Page rules details
+app.get("/page-rule-details/:zoneId/:identifier", async (req, res) => {
+  const { zoneId, identifier } = req.params;
+
+  try {
+    const response = await axios.get(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/pagerules/${identifier}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    const pageRuleDetails = response.data.result;
+
+    res.json({ success: true, zoneId, pageRuleDetails });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Create a page rule
+app.post("/create-page-rule/:zoneId", async (req, res) => {
+  const { zoneId } = req.params;
+  const { targets, actions, priority, status } = req.body;
+
+  // Sample Body
+  //  {
+  //     "status": "active",
+  //     "priority": 1,
+  //     "actions": [
+  //         {
+  //             "id": "browser_cache_ttl",
+  //             "value": 120
+  //         }
+  //     ],
+  //     "targets": [
+  //         {
+  //             "target": "url",
+  //             "constraint": {
+  //                 "operator": "matches",
+  //                 "value": "www.aman1.xyz/*"
+  //             }
+  //         }
+  //     ]
+  // }
+
+  const pageRuleData = {
+    status,
+    targets,
+    actions,
+    priority,
+  };
+
+  try {
+    const response = await axios.post(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/pagerules`,
+      pageRuleData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+    const { id } = response.data.result;
+    res.json({
+      success: true,
+      message: "Page rule created successfully",
+      id,
+    });
+  } catch (error) {
+    console.log(error.response.data);
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// edit a page rule
+app.patch("/edit-page-rule/:zoneId/:identifier", async (req, res) => {
+  const { zoneId, identifier } = req.params;
+  const { targets, actions, priority, status } = req.body;
+
+  const updatedPageRuleData = {
+    status,
+    targets,
+    actions,
+    priority,
+  };
+
+  try {
+    const response = await axios.patch(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/pagerules/${identifier}`,
+      updatedPageRuleData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({ success: true, message: "Page rule edited successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
+  }
+});
+
+// Delete a page rule
+app.delete("/delete-page-rule/:zoneId/:identifier", async (req, res) => {
+  const { zoneId, identifier } = req.params;
+
+  try {
+    const response = await axios.delete(
+      `https://api.cloudflare.com/client/v4/zones/${zoneId}/pagerules/${identifier}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Email": email,
+          "X-Auth-Key": apiKey,
+        },
+      }
+    );
+
+    res.json({ success: true, message: "Page rule deleted successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error.response.data.errors[0].message });
   }
 });
 
